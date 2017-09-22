@@ -1,4 +1,4 @@
-﻿using SGF.Utils;
+﻿using LarkFramework.Utils;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -18,7 +18,7 @@ namespace LarkFramework.UI
         {
             if (ui != null && ui.gameObject != null)
             {
-                GameObjectUiils.SetActiveRecursively(ui.gameObject, value);
+                GameObjectUtils.SetActiveRecursively(ui.gameObject, value);
             }
         }
 

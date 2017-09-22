@@ -39,14 +39,14 @@ namespace LarkFramework.UI
 
             UIRes.UIResRoot = uiResRoot;
 
-            //监听UnityScene加载事件
-            SceneManager.sceneLoaded += (scene, mode) =>
-            {
-                if (sceneLoaded != null)
-                {
-                    sceneLoaded(scene.name);
-                }
-            };
+            ////监听UnityScene加载事件
+            //SceneManager.sceneLoaded += (scene, mode) =>
+            //{
+            //    if (sceneLoaded != null)
+            //    {
+            //        sceneLoaded(scene.name);
+            //    }
+            //};
         }
 
         /// <summary>
