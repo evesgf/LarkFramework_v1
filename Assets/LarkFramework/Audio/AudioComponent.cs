@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace LarkFramework.Audio
 {
+    [DisallowMultipleComponent]
+    [AddComponentMenu("LarkFramework/AudioComponent")]
     public class AudioComponent : MonoBehaviour
     {
         public GameObject BGMPrefab;

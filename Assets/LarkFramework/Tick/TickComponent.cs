@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace LarkFramework.Tick
 {
+    [DisallowMultipleComponent]
+    [AddComponentMenu("LarkFramework/TickComponent")]
     public class TickComponent : SingletonMono<TickComponent>
     {
         #region 全局生命周期回调

@@ -2,6 +2,8 @@
 
 namespace LarkFramework.GameEntry
 {
+    [DisallowMultipleComponent]
+    [AddComponentMenu("LarkFramework/GameEntry")]
     public partial class GameEntry : MonoBehaviour
     {
         public LaunchType lanuchType = LaunchType.Debug;

@@ -248,6 +248,9 @@ MonoBehaviour:
   Root_Music: {fileID: 4616015793793104}
   Root_SoundEffect: {fileID: 4885233794388306}
   audio_BGM: {fileID: 0}
+  isEnableBGM: 0
+  isEnableMusic: 0
+  isEnableSoundEffect: 0
 --- !u!114 &114501445837106176
 MonoBehaviour:
   m_ObjectHideFlags: 1

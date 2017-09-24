@@ -1,7 +1,6 @@
 ﻿using LarkFramework.Tick;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 namespace LarkFramework.Console
 {
@@ -110,11 +109,11 @@ namespace LarkFramework.Console
             if (GUI.Button(new Rect(100, 100, 200, 100), "清空数据"))
             {
                 PlayerPrefs.DeleteAll();
-#if UNITY_EDITOR
-                EditorApplication.isPlaying = false;
-#else
-                Application.Quit();
-#endif
+//#if UNITY_EDITOR
+//                EditorApplication.isPlaying = false;
+//#else
+//                Application.Quit();
+//#endif
             }
             windowRect = GUILayout.Window(123456, windowRect, ConsoleWindow, "Console");
         }
