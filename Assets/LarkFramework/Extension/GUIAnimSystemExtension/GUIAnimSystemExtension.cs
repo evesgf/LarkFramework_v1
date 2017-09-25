@@ -16,6 +16,9 @@ namespace LarkFramework.UI
             }
         }
 
+        /// <summary>
+        /// GUIAni退出
+        /// </summary>
         public void GUIAniClose()
         {
             foreach (var item in guiAnims)

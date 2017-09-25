@@ -55,7 +55,18 @@ namespace LarkFramework.UI
             GameObject root = FindUIComponent();
             if (root != null)
             {
-                obj = root.transform.Find(name);
+                //TODO:因路径名导致找不到物体，传过来的名字为Menu/MenuPage,Find查找规则为(子节点/孙节点)，此时会找不到
+                //var a = root.transform.Find("MenuPage(Clone)");
+                //obj = root.transform.Find(name);
+
+                for (int i = 0; i < root.transform.childCount; i++)
+                {
+                    if (root.transform.GetChild(i).name.Equals(name))
+                    {
+                        obj = root.transform.GetChild(i);
+                        break;
+                    }
+                }
             }
 
             if (obj != null)
