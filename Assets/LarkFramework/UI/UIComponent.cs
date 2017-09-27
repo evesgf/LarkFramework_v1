@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LarkFramework.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,12 @@ using UnityEngine;
 
 namespace LarkFramework.UI
 {
-    public class UIComponent:MonoBehaviour
+    /// <summary>
+    /// 界面组件。
+    /// </summary>
+    [DisallowMultipleComponent]
+    [AddComponentMenu("Lark Framework/UI Component")]
+    public class UIComponent: ComponentBase
     {
         public const string LOG_TAG = "UIComponent";
 

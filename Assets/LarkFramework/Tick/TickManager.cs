@@ -7,7 +7,7 @@ namespace LarkFramework.Tick
 {
     public class TickManager : ServiceModule<TickManager>
     {
-        public const string LOG_TAG = "UIManager";
+        public const string LOG_TAG = "TickManager";
 
         public TickComponent m_TickComponent;
 
@@ -15,6 +15,5 @@ namespace LarkFramework.Tick
         {
             m_TickComponent = TickComponent.Create();
         }
-
     }
 }
