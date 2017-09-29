@@ -1,4 +1,5 @@
-﻿using LarkFramework.Module;
+﻿using LarkFramework.FSM;
+using LarkFramework.Module;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,11 +13,11 @@ namespace LarkFramework.Procedure
         /// <summary>
         /// 流程状态机
         /// </summary>
-        public static FSM m_ProcedureFSM;
+        public static FSM<ProcedureManager> m_ProcedureFSM;
 
         public ProcedureManager()
         {
-            m_ProcedureFSM = new FSM();
+
         }
 
         public void Init()

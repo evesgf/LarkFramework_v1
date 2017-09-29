@@ -1,66 +1,108 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using LarkFramework.Module;
+using LarkFramework.Tick;
+using UnityEngine;
 
-namespace LarkFramework.Test
+namespace LarkFramework.FSM.Example
 {
     public class FSM_Example : MonoBehaviour
     {
-        FSM fsm = new FSM();
 
-        //创建状态
-        FSM.FSMState state_Idle = new FSM.FSMState("idle");
-        FSM.FSMState state_Run = new FSM.FSMState("run");
-        FSM.FSMState state_Jump = new FSM.FSMState("jump");
+        private IFSM<FSM_Example> fsm;
 
         // Use this for initialization
         void Start()
         {
-            Init();
+            ModuleManager.Instance.Init("LarkFramework.FSM.Example");
+
+            TickManager.Instance.Init();
+
+            FSMManager.Instance.Init();
+
+            fsm = FSMManager.Instance.CreateFsm("Testfsm", this, new FSMA(), new FSMB());
+
+            fsm.Start<FSMA>();
         }
 
         // Update is called once per frame
         void Update()
         {
-            Debug.Log(fsm.mCurState.name.ToString());
-
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
-                fsm.Start(state_Run);
+                fsm.ChangeState<FSMA>();
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha2))
             {
-                fsm.Start(state_Jump);
+                fsm.ChangeState<FSMB>();
+            }
+            Debug.Log(fsm.Name + "_" + fsm.CurrentState);
+        }
+
+        public class FSMA : FSMState<FSM_Example>
+        {
+            protected internal override void OnInit(IFSM<FSM_Example> fsm)
+            {
+                base.OnInit(fsm);
+                Debug.Log("FSMA OnInit");
+            }
+
+            protected internal override void OnEnter(IFSM<FSM_Example> fsm)
+            {
+                base.OnEnter(fsm);
+                Debug.Log("FSMA OnEnter");
+
+            }
+
+            protected internal override void OnUpdate(IFSM<FSM_Example> fsm, float elapseSeconds, float realElapseSeconds)
+            {
+                base.OnUpdate(fsm, elapseSeconds, realElapseSeconds);
+                Debug.Log("FSMA OnUpdate");
+            }
+
+            protected internal override void OnLeave(IFSM<FSM_Example> fsm, bool isShutdown)
+            {
+                base.OnLeave(fsm, isShutdown);
+                Debug.Log("FSMA OnLeave");
+            }
+
+            protected internal override void OnDestroy(IFSM<FSM_Example> fsm)
+            {
+                base.OnDestroy(fsm);
+                Debug.Log("FSMA OnDestroy");
             }
         }
 
-        void Init()
+        public class FSMB : FSMState<FSM_Example>
         {
+            protected internal override void OnInit(IFSM<FSM_Example> fsm)
+            {
+                base.OnInit(fsm);
+                Debug.Log("FSMB OnInit");
+            }
 
-            //创建跳转
-            FSM.FSMTranslation touchTranslation1 = new FSM.FSMTranslation(state_Idle, "touch_down", state_Jump,Jump);
-            FSM.FSMTranslation landTranslation1 = new FSM.FSMTranslation(state_Jump, "land", state_Run,Run);
+            protected internal override void OnEnter(IFSM<FSM_Example> fsm)
+            {
+                base.OnEnter(fsm);
+                Debug.Log("FSMB OnEnter");
+            }
 
-            //添加状态
-            fsm.AddState(state_Idle);
-            fsm.AddState(state_Jump);
-            fsm.AddState(state_Run);
+            protected internal override void OnUpdate(IFSM<FSM_Example> fsm, float elapseSeconds, float realElapseSeconds)
+            {
+                base.OnUpdate(fsm, elapseSeconds, realElapseSeconds);
+                Debug.Log("FSMB OnUpdate");
+            }
 
-            //添加跳转
-            fsm.AddTranslation(touchTranslation1);
-            fsm.AddTranslation(landTranslation1);
+            protected internal override void OnLeave(IFSM<FSM_Example> fsm, bool isShutdown)
+            {
+                base.OnLeave(fsm, isShutdown);
+                Debug.Log("FSMB OnLeave");
+            }
 
-            fsm.Start(state_Run);
-        }
-
-        void Jump()
-        {
-            Debug.Log("this is jump Func");
-        }
-
-        void Run()
-        {
-            Debug.Log("this is Run Func");
+            protected internal override void OnDestroy(IFSM<FSM_Example> fsm)
+            {
+                base.OnDestroy(fsm);
+                Debug.Log("FSMB OnDestroy");
+            }
         }
     }
 }
