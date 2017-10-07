@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LarkFramework.Extension
 {
     [CustomEditor(typeof(UIPanel),true)]
-    public class GUIAnimSystemExtensionEditor : Editor
+    public class GUIAnimSystemExtensionEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

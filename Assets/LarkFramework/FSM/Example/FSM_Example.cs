@@ -6,7 +6,6 @@ namespace LarkFramework.FSM.Example
 {
     public class FSM_Example : MonoBehaviour
     {
-
         private IFSM<FSM_Example> fsm;
 
         // Use this for initialization

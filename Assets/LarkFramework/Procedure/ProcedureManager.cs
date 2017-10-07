@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace LarkFramework.Procedure
 {
@@ -21,17 +22,12 @@ namespace LarkFramework.Procedure
             m_ProcedureFSM = null;
         }
 
-        public void Init()
-        {
-            m_ProcedureFSM = FSMManager.Instance.CreateFsm("ProcedureFSM", this,null);
-        }
-
         /// <summary>
         /// 初始化流程管理器。
         /// </summary>
         /// <param name="fsmManager">有限状态机管理器。</param>
         /// <param name="procedures">流程管理器包含的流程。</param>
-        public void Initialize(params ProcedureBase[] procedures)
+        public void Init(ProcedureBase[] procedures)
         {
             m_ProcedureFSM = FSMManager.Instance.CreateFsm("ProcedureFSM", this, procedures);
         }
@@ -164,6 +160,15 @@ namespace LarkFramework.Procedure
             }
 
             return (ProcedureBase)m_ProcedureFSM.GetState(procedureType);
+        }
+
+        /// <summary>
+        /// 切换当前过程状态。
+        /// </summary>
+        /// <typeparam name="TProcedure">要切换到的有限状态机状态类型。</typeparam>
+        public void ChangeProcedure<TProcedure>() where TProcedure : ProcedureBase
+        {
+            m_ProcedureFSM.ChangeState<TProcedure>();
         }
     }
 }
