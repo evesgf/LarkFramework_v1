@@ -76,7 +76,7 @@ namespace LarkFramework.Console
             Application.logMessageReceived -= HandleLog;
         }
 
-        void Update()
+        void Update(float elapseSeconds, float realElapseSeconds)
         {
 #if UNITY_EDITOR
             if (Input.GetKeyUp(KeyCode.F1))

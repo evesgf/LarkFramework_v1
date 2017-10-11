@@ -1,5 +1,6 @@
 ﻿using LarkFramework.Module;
 using Project;
+using System;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +9,8 @@ namespace LarkFramework.Scenes
     public class ScenesManager : ServiceModule<ScenesManager>
     {
         public const string LOG_TAG = "ScenesManager";
+
+        public ScenesComponent scenesComponent;
 
         public static string MainScene = SceneDef.HomeScene;   //主场景
 
@@ -35,6 +38,7 @@ namespace LarkFramework.Scenes
         {
             CheckSingleton();
             ScenesRes.SceneResRoot = sceneResRoot;
+            scenesComponent = ScenesComponent.FindScenesComponent();
         }
 
         #region Scene管理
@@ -54,7 +58,29 @@ namespace LarkFramework.Scenes
 
             m_listLoadedScene.Add(m_currentScene);
 
+            //加载场景
             ScenesRes.LoadScene(scene, isAdditive);
+        }
+
+        /// <summary>
+        /// 进入Scene
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <param name="isAdditive"></param>
+        /// <param name="arg"></param>
+        public void LoadSceneAsync(string scene, bool isAdditive = false, Action action = null, object arg = null)
+        {
+            Debuger.Log(LOG_TAG, "LoadSceneAsync() scene:{0}, isAdditive:{1}, arg:{2}", scene, isAdditive, arg);
+
+            m_currentScene = new SceneTrack();
+            m_currentScene.name = scene;
+            m_currentScene.isAdditive = isAdditive;
+
+            m_listLoadedScene.Add(m_currentScene);
+
+            //加载场景
+            //TODO:加载成功失败的回调没有实现
+            scenesComponent.LoadSceneAnysc(scene, isAdditive,action);
         }
 
 

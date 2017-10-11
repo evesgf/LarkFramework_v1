@@ -106,6 +106,11 @@ namespace LarkFramework.UI
             return ui;
         }
 
+        public void ClosePanel()
+        {
+            //TODO：
+        }
+
         protected void CloseAllLoadedPanels()
         {
             foreach (var item in m_listLoadedPanel)
@@ -115,6 +120,51 @@ namespace LarkFramework.UI
                     item.Close();
                 }
             }
+        }
+
+        /// <summary>
+        /// 根据名字判断指定UI是否存在
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public bool HasUIPanel(string name)
+        {
+            foreach (var item in m_listLoadedPanel)
+            {
+                if (item.name.Equals(name))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 根据名字获取指定UI
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public UIPanel GetUIPanel(string name)
+        {
+            foreach (var item in m_listLoadedPanel)
+            {
+                if (item.name.Equals(name))
+                {
+                    return item;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 获取当前UI
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public UIPanel GetCruuentUIPanel()
+        {
+            return GetUIPanel(m_currentPage.name);
         }
 
         //-------------------------------------------------------

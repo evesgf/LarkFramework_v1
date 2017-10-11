@@ -11,10 +11,11 @@ namespace LarkFramework.Tick
     {
         #region 全局生命周期回调
         public delegate void LifeCircleCallback();
+        public delegate void LifeUpdateCircleCallback(float elapseSeconds, float realElapseSeconds);
 
-        public LifeCircleCallback onUpdate = null;
-        public LifeCircleCallback onFixedUpdate = null;
-        public LifeCircleCallback onLatedUpdate = null;
+        public LifeUpdateCircleCallback onUpdate = null;
+        public LifeUpdateCircleCallback onFixedUpdate = null;
+        public LifeUpdateCircleCallback onLatedUpdate = null;
         public LifeCircleCallback onGUI = null;
         public LifeCircleCallback onDestroy = null;
         public LifeCircleCallback onApplicationQuit = null;
@@ -22,20 +23,20 @@ namespace LarkFramework.Tick
         void Update()
         {
             if (this.onUpdate != null)
-                this.onUpdate();
+                this.onUpdate(Time.deltaTime,Time.realtimeSinceStartup);
         }
 
         void FixedUpdate()
         {
             if (this.onFixedUpdate != null)
-                this.onFixedUpdate();
+                this.onFixedUpdate(Time.deltaTime, Time.realtimeSinceStartup);
 
         }
 
         void LatedUpdate()
         {
             if (this.onLatedUpdate != null)
-                this.onLatedUpdate();
+                this.onLatedUpdate(Time.deltaTime, Time.realtimeSinceStartup);
         }
 
         void OnGUI()

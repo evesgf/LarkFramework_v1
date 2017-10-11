@@ -6,6 +6,7 @@ using Project;
 using LarkFramework.Console;
 using LarkFramework.Tick;
 using LarkFramework.Audio;
+using LarkFramework.FSM;
 
 namespace LarkFramework.GameEntry
 {
@@ -13,15 +14,20 @@ namespace LarkFramework.GameEntry
     {
         public void InitBuiltinComponents()
         {
+            //Init Module
+            ModuleManager.Instance.Init("Project");
+
             //InitTick
             TickManager.Instance.Init();
 
+            //Init Console
             Console.Console.Create();
+
+            //Init FSM
+            FSMManager.Instance.Init();
 
             //InitConfig
             AppConfig.Init();
-
-            ModuleManager.Instance.Init("Project");
 
             //InitModule
             //Init Resources
@@ -29,7 +35,7 @@ namespace LarkFramework.GameEntry
 
             //Init Scene
             ScenesManager.Instance.Init("Scene/");
-            ScenesManager.MainScene = SceneDef.MenuScene;
+            ScenesManager.MainScene = SceneDef.HomeScene;
             if (lanuchType == LaunchType.Debug && !string.IsNullOrEmpty(startScene))
             {
                 ScenesManager.Instance.LoadScene(startScene);

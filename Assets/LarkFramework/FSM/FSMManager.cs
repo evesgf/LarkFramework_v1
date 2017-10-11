@@ -49,7 +49,7 @@ namespace LarkFramework.FSM
         /// </summary>
         /// <param name="elapseSeconds">逻辑流逝时间，以秒为单位。</param>
         /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
-        internal void Update()
+        internal void Update(float elapseSeconds, float realElapseSeconds)
         {
             m_TempFsms.Clear();
             if (m_Fsms.Count <= 0)
@@ -70,7 +70,7 @@ namespace LarkFramework.FSM
                 }
 
                 //fsm.Update(elapseSeconds, realElapseSeconds);
-                fsm.Update();
+                fsm.Update(elapseSeconds,realElapseSeconds);
             }
         }
 
