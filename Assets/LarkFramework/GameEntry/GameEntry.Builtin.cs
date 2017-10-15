@@ -43,7 +43,7 @@ namespace LarkFramework.GameEntry
 
             //Init UI
             UIManager.Instance.Init("UI/");
-            UIManager.MainPage = UIDef.MenuPage;
+            UIManager.MainPage = UIDef.MainPage;
             if (lanuchType == LaunchType.Debug && !string.IsNullOrEmpty(startUI))
             {
                 UIManager.Instance.OpenPage(startUI, null);
