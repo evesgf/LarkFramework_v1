@@ -11,17 +11,18 @@ namespace LarkFramework.UI
     {
         public const string LOG_TAG = "UIManager";
 
-        public static string MainPage = UIExampleDef.MainUI;   //主页面
+        public static string MainPage = UIExampleDef.MainUI;    //主页面
 
         class UIPageTrack
         {
-            public string name; //页面名
+            public string name;                                 //页面名
+            public UIPanel uiPanel;                             //页面实体
         }
 
-        private Stack<UIPageTrack> m_pageTrackStack;    //页面堆栈
-        private UIPageTrack m_currentPage;  //当前页面
-        private Action<string> sceneLoaded; //场景加载成功事件的转接
-        private List<UIPanel> m_listLoadedPanel;    //所有加载过的页面
+        private Stack<UIPageTrack> m_pageTrackStack;            //页面堆栈
+        private UIPageTrack m_currentPage;                      //当前页面
+        private Action<string> sceneLoaded;                     //场景加载成功事件的转接
+        private List<UIPanel> m_listLoadedPanel;                //所有加载过的页面
 
         public UIManager()
         {
@@ -98,6 +99,7 @@ namespace LarkFramework.UI
             if (ui != null)
             {
                 ui.Open(arg);
+                m_currentPage.uiPanel = ui;
             }
             else
             {
@@ -194,6 +196,13 @@ namespace LarkFramework.UI
 
             if (m_currentPage != null)
             {
+                //如果是打开当前UI
+                if (m_currentPage.name.Equals(page))
+                {
+                    m_currentPage.uiPanel.Open();
+                    return;
+                }
+
                 m_pageTrackStack.Push(m_currentPage);
             }
 

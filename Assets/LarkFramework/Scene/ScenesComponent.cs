@@ -44,7 +44,10 @@ namespace LarkFramework.Scenes
             async_operation = SceneManager.LoadSceneAsync(name);
             yield return async_operation;
 
-            action.Invoke();
+            if (action != null)
+            {
+                action.Invoke();
+            }
         }
     }
 }
