@@ -80,7 +80,7 @@ namespace LarkFramework.Download
                 {
                     if (m_DownList[i].m_LoadUpdateCallback != null)
                     {
-                        m_DownList[i].m_LoadUpdateCallback.Invoke(m_DownList[i].progress, m_DownList[i].fileLength);
+                        m_DownList[i].m_LoadUpdateCallback.Invoke(m_DownList[i].progress, m_DownList[i].fileLength, m_DownList[i].totalLength);
                     }
 
                     if (m_DownList[i].isDone)
@@ -91,7 +91,7 @@ namespace LarkFramework.Download
                 }
             }
 
-            Debuger.Log(m_WaitQue.Count);
+            Debuger.Log("m_WaitQue:"+m_WaitQue.Count);
         }
 
         /// <summary>
@@ -102,8 +102,6 @@ namespace LarkFramework.Download
             var d = m_WaitQue.Dequeue();
             m_DownList.Add(d);
             d.Download();
-
-            Debuger.Log("新增下载项:"+d.m_FileName);
         }
 
         /// <summary>
