@@ -9,6 +9,8 @@ namespace LarkFramework.Download
 {
     /// <summary>
     /// 下载管理器
+    /// 参考：http://blog.csdn.net/dingxiaowei2013/article/details/77814966
+    /// 参考：http://blog.csdn.net/damenhanter/article/details/50273303
     /// </summary>
     public class DownloadManager : ServiceModule<DownloadManager>
     {
@@ -17,26 +19,27 @@ namespace LarkFramework.Download
         /// </summary>
         public int MAX_LOAD_REQUEST = 4;
 
-        private Queue<DownloadTask> m_DownQue;                      //下载队列
+        private List<DownloadTask> m_DownList;                      //下载队列
         private Queue<DownloadTask> m_WaitQue;                      //等待下载队列
         private Queue<DownloadTask> completeQue;                    //下载完成队列
 
-        private int m_FlushSize;                                    //缓冲区大小
-        private float m_Timeout;                                    //超时时间
+        private int m_FlushSize= 1024 * 1024;                       //缓冲区大小
+        private float m_Timeout= 30f;                               //超时时间
 
         /// <summary>
         /// 初始化操作
         /// </summary>
-        public void Init()
+        public void Init(int maxLoad=4, int flushSize = 1024 * 1024, float timeOut= 30f)
         {
             CheckSingleton();
 
-            m_DownQue = new Queue<DownloadTask>();
+            m_DownList = new List<DownloadTask>();
             m_WaitQue = new Queue<DownloadTask>();
             completeQue = new Queue<DownloadTask>();
 
-            m_FlushSize = 1024 * 1024;
-            m_Timeout = 30f;
+            MAX_LOAD_REQUEST = maxLoad;
+            m_FlushSize = flushSize;
+            m_Timeout = timeOut;
 
             TickComponent.Instance.onUpdate += Update;
         }
@@ -50,7 +53,7 @@ namespace LarkFramework.Download
         {
             if (m_WaitQue.Count > 0)
             {
-                if (m_DownQue.Count < MAX_LOAD_REQUEST)
+                if (m_DownList.Count < MAX_LOAD_REQUEST)
                 {
                     //移入下载队列
                     MoveTaskFromWaitDicToDwonDict();
@@ -67,14 +70,25 @@ namespace LarkFramework.Download
             //    Debuger.Log("当前没有等待下载的任务");
             //}
 
-            if (m_DownQue.Count > 0)
+            if (m_DownList.Count > 0)
             {
                 //输出下载队列状态
-                foreach (var item in m_DownQue)
+                for (int i = 0; i < m_DownList.Count; i++)
                 {
-                    item.m_LoadUpdateCallback.Invoke(item.progress);
+                    if (m_DownList[i].m_LoadUpdateCallback != null)
+                    {
+                        m_DownList[i].m_LoadUpdateCallback.Invoke(m_DownList[i].progress);
+                    }
+
+                    if (m_DownList[i].isDone)
+                    {
+                        //移除下载队列
+                        RemoveDownload(m_DownList[i]);
+                    }
                 }
             }
+
+            Debuger.Log(m_WaitQue.Count);
         }
 
         /// <summary>
@@ -83,7 +97,7 @@ namespace LarkFramework.Download
         public void MoveTaskFromWaitDicToDwonDict()
         {
             var d = m_WaitQue.Dequeue();
-            m_DownQue.Enqueue(d);
+            m_DownList.Add(d);
             d.Download();
 
             Debuger.Log("新增下载项:"+d.m_FileName);
@@ -119,6 +133,16 @@ namespace LarkFramework.Download
             DownloadTask downloadTask = new DownloadTask(fileName,url,savePath, m_FlushSize, m_Timeout, userData, loadSuccessCallback, loadFailureCallback, loadUpdateCallback);
 
             m_WaitQue.Enqueue(downloadTask);
+        }
+
+        /// <summary>
+        /// 从下载队列中移除下载任务
+        /// </summary>
+        /// <param name="task"></param>
+        public void RemoveDownload(DownloadTask task)
+        {
+            task.Close();
+            m_DownList.Remove(task);
         }
     }
 }

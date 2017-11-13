@@ -8,8 +8,14 @@ using UnityEngine.UI;
 
 public class Download_Example : MonoBehaviour {
 
-    public string fileName;
-    public string url;
+    public DownList[] downList;
+
+    [System.Serializable]
+    public class DownList
+    {
+        public string fileName;
+        public string url;
+    }
 
     public Slider slider;
     private LoadUpdateCallback m_LoadUpdateCallback;
@@ -26,13 +32,18 @@ public class Download_Example : MonoBehaviour {
         ModuleManager.Instance.Init("LarkFramework.Module.Example");
 
         TickManager.Instance.Init();
-        DownloadManager.Instance.Init();
+        DownloadManager.Instance.Init(2);
     }
 
     public void Down()
     {
         m_LoadUpdateCallback += ShowSlider;
-        DownloadManager.Instance.AddDownload(fileName, url, Application.streamingAssetsPath,null, delegate { print("文件下完啦。。。。"); },delegate { print("咋回事啊？"); }, m_LoadUpdateCallback);
+
+        foreach (var item in downList)
+        {
+
+            DownloadManager.Instance.AddDownload(item.fileName, item.url, Application.streamingAssetsPath, null, delegate { print(item.fileName+":下完啦。。。。"); }, delegate { print("咋回事啊？"); }, m_LoadUpdateCallback);
+        }
     }
 
     public void ShowSlider(float processValue, int fileTotalSize = 0)
