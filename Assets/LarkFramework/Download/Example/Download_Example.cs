@@ -32,7 +32,7 @@ public class Download_Example : MonoBehaviour {
         ModuleManager.Instance.Init("LarkFramework.Module.Example");
 
         TickManager.Instance.Init();
-        DownloadManager.Instance.Init(2);
+        DownloadManager.Instance.Init(2,1024*1024,30*1000);
     }
 
     public void Down()
@@ -46,7 +46,7 @@ public class Download_Example : MonoBehaviour {
         }
     }
 
-    public void ShowSlider(float processValue, int fileTotalSize = 0)
+    public void ShowSlider(float processValue, long fileTotalSize = 0)
     {
         slider.value = processValue;
     }

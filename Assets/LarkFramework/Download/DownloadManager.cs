@@ -24,12 +24,15 @@ namespace LarkFramework.Download
         private Queue<DownloadTask> completeQue;                    //下载完成队列
 
         private int m_FlushSize= 1024 * 1024;                       //缓冲区大小
-        private float m_Timeout= 30f;                               //超时时间
+        private int m_Timeout= 30 * 1000;                           //超时时间
 
         /// <summary>
         /// 初始化操作
         /// </summary>
-        public void Init(int maxLoad=4, int flushSize = 1024 * 1024, float timeOut= 30f)
+        /// <param name="maxLoad">最大同时下载数量</param>
+        /// <param name="flushSize">缓冲区大小</param>
+        /// <param name="timeOut">超时时间（毫秒）</param>
+        public void Init(int maxLoad=4, int flushSize = 1024 * 1024, int timeOut= 30*1000)
         {
             CheckSingleton();
 
@@ -77,7 +80,7 @@ namespace LarkFramework.Download
                 {
                     if (m_DownList[i].m_LoadUpdateCallback != null)
                     {
-                        m_DownList[i].m_LoadUpdateCallback.Invoke(m_DownList[i].progress);
+                        m_DownList[i].m_LoadUpdateCallback.Invoke(m_DownList[i].progress, m_DownList[i].fileLength);
                     }
 
                     if (m_DownList[i].isDone)

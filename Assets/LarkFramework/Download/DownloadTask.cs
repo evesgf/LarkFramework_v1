@@ -23,21 +23,24 @@ namespace LarkFramework.Download
 
         private string m_SavePath;                                //保存地址
         private int m_FlushSize;                                  //缓冲区大小
-        private float m_TimeOut;                                  //超时时间
+        private int m_TimeOut;                                    //超时时间
         private object m_UserData;                                //用户自定义数据
         private ThreadPriority m_ThreadPriority;                  //线程优先级
 
-        const int ReadWriteTimeOut = 2 * 1000;//超时等待时间
-        const int TimeOutWait = 5 * 1000;//超时等待时间
+        const int ReadWriteTimeOut = 2 * 1000;              //读写流时的超时（毫秒）。
 
         /// <summary>
         /// 下载进度
         /// </summary>
         public float progress { get; private set; }
+
         /// <summary>
         /// 表示下载是否完成
         /// </summary>
         public bool isDone { get; private set; }
+
+        //已经下载的文件大小
+        public long fileLength { get; set; }
 
         //涉及子线程要注意,Unity关闭的时候子线程不会关闭，所以要有一个标识
         private bool isStop;
@@ -51,13 +54,13 @@ namespace LarkFramework.Download
         /// <param name="url">下载地址</param>
         /// <param name="savePath">保存地址</param>
         /// <param name="flushSize">缓冲区大小</param>
-        /// <param name="timeOut">超时时间</param>
+        /// <param name="timeOut">超时时间(毫秒)</param>
         /// <param name="userData">用户自定义数据</param>
         /// <param name="loadSuccessCallback">成功回调</param>
         /// <param name="loadFailureCallback">失败回调</param>
         /// <param name="loadUpdateCallback">下载中回调</param>
         /// <param name="threadPriority">线程优先级</param>
-        public DownloadTask(string fileName, string url, string savePath, int flushSize, float timeOut, object userData=null, LoadSuccessCallback loadSuccessCallback =null, LoadFailureCallback loadFailureCallback=null, LoadUpdateCallback loadUpdateCallback=null, ThreadPriority threadPriority = ThreadPriority.Normal)
+        public DownloadTask(string fileName, string url, string savePath, int flushSize, int timeOut, object userData=null, LoadSuccessCallback loadSuccessCallback =null, LoadFailureCallback loadFailureCallback=null, LoadUpdateCallback loadUpdateCallback=null, ThreadPriority threadPriority = ThreadPriority.Normal)
         {
             m_FileName = fileName;
             m_Url = url;
@@ -82,94 +85,109 @@ namespace LarkFramework.Download
             thread = new Thread(delegate () {
                 stopWatch.Start();
 
-                //判断保存路径是否存在
-                if (!Directory.Exists(m_SavePath))
+                try
                 {
-                    Directory.CreateDirectory(m_SavePath);
-                }
-                //这是要下载的文件名，比如从服务器下载a.zip到D盘，保存的文件名是test
-                string filePath = m_SavePath + "/" + m_FileName;
-
-                //使用流操作文件
-                FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write);
-                //获取文件现在的长度
-                long fileLength = fs.Length;
-                //获取下载文件的总长度
-                UnityEngine.Debug.Log(m_Url + " " + m_FileName);
-                long totalLength = GetLength(m_Url);
-
-                Debuger.Log("<color=red>文件:" + m_FileName + " 已下载{" + fileLength / 1024 / 1024 + "}M，剩余{" + ((totalLength - fileLength) / 1024 / 1024) + "}M</color>");
-
-                //如果没下载完
-                if (fileLength < totalLength)
-                {
-                    //断点续传核心，设置本地文件流的起始位置
-                    fs.Seek(fileLength, SeekOrigin.Begin);
-
-                    HttpWebRequest request = HttpWebRequest.Create(m_Url) as HttpWebRequest;
-
-                    request.ReadWriteTimeout = ReadWriteTimeOut;
-                    request.Timeout = TimeOutWait;
-
-                    //断点续传核心，设置远程访问文件流的起始位置
-                    request.AddRange((int)fileLength);
-
-                    Stream stream = request.GetResponse().GetResponseStream();
-                    byte[] buffer = new byte[1024];
-                    //使用流读取内容到buffer中
-                    //注意方法返回值代表读取的实际长度,并不是buffer有多大，stream就会读进去多少
-                    int length = stream.Read(buffer, 0, buffer.Length);
-                    //Debuger.Log("<color=red>length:{"+ length + "}</color>");
-                    while (length > 0)
+                    //判断保存路径是否存在
+                    if (!Directory.Exists(m_SavePath))
                     {
-                        //如果Unity客户端关闭，停止下载
-                        if (isStop)
+                        Directory.CreateDirectory(m_SavePath);
+                    }
+                    else
+                    {
+                        Directory.Delete(m_SavePath);
+                    }
+
+                    //这是要下载的文件名，比如从服务器下载a.zip到D盘，保存的文件名是test
+                    string filePath = m_SavePath + "/" + m_FileName;
+
+                    //使用流操作文件
+                    FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write);
+                    //获取文件现在的长度
+                    fileLength = fs.Length;
+                    //获取下载文件的总长度
+                    long totalLength = GetLength(m_Url);
+
+                    Debuger.Log("<color=red>文件:" + m_FileName + " 已下载{" + fileLength / 1024 / 1024 + "}M，剩余{" + ((totalLength - fileLength) / 1024 / 1024) + "}M</color>");
+
+                    //如果没下载完
+                    if (fileLength < totalLength)
+                    {
+                        //断点续传核心，设置本地文件流的起始位置
+                        fs.Seek(fileLength, SeekOrigin.Begin);
+
+                        HttpWebRequest request = HttpWebRequest.Create(m_Url) as HttpWebRequest;
+
+                        request.ReadWriteTimeout = ReadWriteTimeOut;
+                        request.Timeout = m_TimeOut;
+
+                        //断点续传核心，设置远程访问文件流的起始位置
+                        request.AddRange((int)fileLength);
+
+                        Stream stream = request.GetResponse().GetResponseStream();
+                        byte[] buffer = new byte[1024];
+                        //使用流读取内容到buffer中
+                        //注意方法返回值代表读取的实际长度,并不是buffer有多大，stream就会读进去多少
+                        int length = stream.Read(buffer, 0, buffer.Length);
+                        //Debuger.Log("<color=red>length:{"+ length + "}</color>");
+                        while (length > 0)
                         {
-                            m_LoadFailureCallback.Invoke();
-                            break;
+
+                            //如果Unity客户端关闭，停止下载
+                            if (isStop)
+                            {
+                                m_LoadFailureCallback.Invoke();
+                                break;
+                            }
+
+                            //将内容再写入本地文件中
+                            fs.Write(buffer, 0, length);
+                            //计算进度
+                            fileLength += length;
+                            progress = (float)fileLength / (float)totalLength;
+                            //UnityEngine.Debug.Log(progress);
+                            //类似尾递归
+                            length = stream.Read(buffer, 0, buffer.Length);
+
+                        }
+                        stream.Close();
+                        stream.Dispose();
+
+                    }
+                    else
+                    {
+                        progress = 1;
+                    }
+                    stopWatch.Stop();
+                    Debuger.Log("耗时: " + stopWatch.ElapsedMilliseconds);
+                    fs.Close();
+                    fs.Dispose();
+
+                    //如果下载完毕，执行回调
+                    if (progress == 1)
+                    {
+                        isDone = true;
+
+                        if (m_LoadSuccessCallback != null)
+                        {
+                            m_LoadSuccessCallback.Invoke();
                         }
 
-                        //将内容再写入本地文件中
-                        fs.Write(buffer, 0, length);
-                        //计算进度
-                        fileLength += length;
-                        progress = (float)fileLength / (float)totalLength;
-                        //UnityEngine.Debug.Log(progress);
-                        //类似尾递归
-                        length = stream.Read(buffer, 0, buffer.Length);
-
+                        thread.Abort();
+                        Debuger.Log(m_FileName + " 下载完成");
                     }
-                    stream.Close();
-                    stream.Dispose();
-
                 }
-                else
+                catch (Exception e)
                 {
-                    progress = 1;
-                }
-                stopWatch.Stop();
-                Debuger.Log("耗时: " + stopWatch.ElapsedMilliseconds);
-                fs.Close();
-                fs.Dispose();
-
-                //如果下载完毕，执行回调
-                if (progress == 1)
-                {
-                    isDone = true;
-
-                    if (m_LoadSuccessCallback != null)
-                    {
-                        m_LoadSuccessCallback.Invoke();
-                    }
-
                     thread.Abort();
-                    Debuger.Log(m_FileName + " 下载完成");
+                    Debuger.Log(m_FileName + " 下载异常："+e);
                 }
             });
+
             //开启子线程
             thread.IsBackground = true;
             thread.Priority = m_ThreadPriority;
             thread.Start();
+            Debuger.Log("开启线程：" + thread.Name);
         }
 
         /// <summary>
