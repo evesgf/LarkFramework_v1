@@ -17,8 +17,8 @@ public class Download_Example : MonoBehaviour {
         public string url;
     }
 
-    public Slider slider;
-    private LoadUpdateCallback m_LoadUpdateCallback;
+    public GameObject itemObj;
+    public Transform itemRoot;
 
     // Use this for initialization
     void Start () {
@@ -37,17 +37,11 @@ public class Download_Example : MonoBehaviour {
 
     public void Down()
     {
-        m_LoadUpdateCallback += ShowSlider;
-
-        foreach (var item in downList)
+        foreach (var down in downList)
         {
-
-            DownloadManager.Instance.AddDownload(item.fileName, item.url, Application.streamingAssetsPath, null, delegate { print(item.fileName+":下完啦。。。。"); }, delegate { print("咋回事啊？"); }, m_LoadUpdateCallback);
+            var item=GameObject.Instantiate(itemObj, itemRoot).GetComponent<Item>();
+            item.name = down.fileName;
+            item.Init(0,down.fileName, down.url, Application.streamingAssetsPath);
         }
-    }
-
-    public void ShowSlider(float processValue, long fileTotalSize = 0)
-    {
-        slider.value = processValue;
     }
 }
