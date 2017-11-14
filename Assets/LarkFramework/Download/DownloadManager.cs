@@ -91,7 +91,7 @@ namespace LarkFramework.Download
                 }
             }
 
-            Debuger.Log("m_WaitQue:"+m_WaitQue.Count);
+            Debuger.Log("m_WaitQue:"+m_WaitQue.Count+ " m_DownList:" + m_DownList.Count);
         }
 
         /// <summary>
@@ -134,6 +134,23 @@ namespace LarkFramework.Download
             DownloadTask downloadTask = new DownloadTask(fileName,url,savePath, m_FlushSize, m_Timeout, userData, loadSuccessCallback, loadFailureCallback, loadUpdateCallback);
 
             m_WaitQue.Enqueue(downloadTask);
+        }
+
+        public void ReStartDownList()
+        {
+            foreach (var item in m_DownList)
+            {
+                ReStartDownload(item);
+            }
+        }
+
+        /// <summary>
+        /// 重新开始下载任务
+        /// </summary>
+        /// <param name="task"></param>
+        public void ReStartDownload(DownloadTask task)
+        {
+            task.Download();
         }
 
         /// <summary>

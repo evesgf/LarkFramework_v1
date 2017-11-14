@@ -22,10 +22,22 @@ public class Item : MonoBehaviour
         Slider.value = 0;
 
         loadUpdateCallback += ShowSlider;
+        loadSuccessCallback += OK;
+        loadFailureCallback += GG;
 
-        DownloadManager.Instance.AddDownload(fileName, url, Application.streamingAssetsPath, null, delegate { print(fileName + ":下完啦。。。。"); }, delegate { print("咋回事啊？"); }, loadUpdateCallback);
+        DownloadManager.Instance.AddDownload(fileName, url, savePath, userData, loadSuccessCallback, loadFailureCallback, loadUpdateCallback);
     }
 
+
+    public void OK()
+    {
+        print("搞定了啊");
+    }
+
+    public void GG()
+    {
+        print("咋回事啊？");
+    }
 
     public void ShowSlider(float processValue, long fileLoadSize = 0,long fileTotalSize = 0)
     {

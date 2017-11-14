@@ -83,106 +83,137 @@ namespace LarkFramework.Download
             Debuger.Log("开始下载:"+m_FileName);
             isStop = false;
             Stopwatch stopWatch = new Stopwatch();
-            //开启子线程下载,使用匿名方法
 
             //开启子线程下载,使用匿名方法
             thread = new Thread(delegate () {
                 stopWatch.Start();
 
-                //判断保存路径是否存在
-                if (!Directory.Exists(m_SavePath))
+                try
                 {
-                    Directory.CreateDirectory(m_SavePath);
-                }
-                //else
-                //{
-                //    Directory.Delete(m_SavePath);
-                //    Directory.CreateDirectory(m_SavePath);
-                //}
-
-                //这是要下载的文件名，比如从服务器下载a.zip到D盘，保存的文件名是test
-                string filePath = m_SavePath + "/" + m_FileName;
-
-                //使用流操作文件
-                FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write);
-                //获取文件现在的长度
-                fileLength = fs.Length;
-                //获取下载文件的总长度
-                totalLength = GetLength(m_Url);
-
-                Debuger.Log("<color=red>文件:" + m_FileName + " 已下载{" + fileLength / 1024 / 1024 + "}M，剩余{" + ((totalLength - fileLength) / 1024 / 1024) + "}M</color>");
-
-                //如果没下载完
-                if (fileLength < totalLength)
-                {
-                    //断点续传核心，设置本地文件流的起始位置
-                    fs.Seek(fileLength, SeekOrigin.Begin);
-
-                    HttpWebRequest request = WebRequest.Create(m_Url) as HttpWebRequest;
-
-                    if (request != null)
+                    //判断保存路径是否存在
+                    if (!Directory.Exists(m_SavePath))
                     {
-                        request.ReadWriteTimeout = ReadWriteTimeOut;
-                        request.Timeout = m_TimeOut;
+                        Directory.CreateDirectory(m_SavePath);
+                    }
 
-                        //断点续传核心，设置远程访问文件流的起始位置
-                        request.AddRange((int)fileLength);
+                    //这是要下载的文件名，比如从服务器下载a.zip到D盘，保存的文件名是test
+                    string filePath = m_SavePath + "/" + m_FileName;
 
-                        Stream stream = request.GetResponse().GetResponseStream();
-                        byte[] buffer = new byte[1024];
-                        //使用流读取内容到buffer中
-                        //注意方法返回值代表读取的实际长度,并不是buffer有多大，stream就会读进去多少
-                        if (stream != null)
+                    //使用流操作文件
+                    FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write);
+                    //获取文件现在的长度
+                    fileLength = fs.Length;
+                    //获取下载文件的总长度
+                    totalLength = GetLength(m_Url);
+
+                    Debuger.Log("<color=red>文件:" + m_FileName + " 已下载" + fileLength / 1024 + "K，剩余" + ((totalLength - fileLength) / 1024) + "K</color>");
+
+                    //如果没下载完
+                    if (fileLength < totalLength)
+                    {
+                        //断点续传核心，设置本地文件流的起始位置
+                        fs.Seek(fileLength, SeekOrigin.Begin);
+
+                        HttpWebRequest request = WebRequest.Create(m_Url) as HttpWebRequest;
+
+                        if (request != null)
                         {
-                            int length = stream.Read(buffer, 0, buffer.Length);
-                            //Debuger.Log("<color=red>length:{"+ length + "}</color>");
-                            while (length > 0)
+                            request.ReadWriteTimeout = ReadWriteTimeOut;
+                            request.Timeout = m_TimeOut;
+
+                            //断点续传核心，设置远程访问文件流的起始位置
+                            request.AddRange((int)fileLength);
+
+                            Stream stream = request.GetResponse().GetResponseStream();
+                            byte[] buffer = new byte[1024];
+                            //使用流读取内容到buffer中
+                            //注意方法返回值代表读取的实际长度,并不是buffer有多大，stream就会读进去多少
+                            if (stream != null)
                             {
-
-                                //如果Unity客户端关闭，停止下载
-                                if (isStop)
+                                int length = stream.Read(buffer, 0, buffer.Length);
+                                //Debuger.Log("<color=red>length:{"+ length + "}</color>");
+                                while (length > 0)
                                 {
-                                    m_LoadFailureCallback.Invoke();
-                                    break;
+
+                                    //如果Unity客户端关闭，停止下载
+                                    if (isStop)
+                                    {
+                                        m_LoadFailureCallback.Invoke();
+                                        break;
+                                    }
+
+                                    //将内容再写入本地文件中
+                                    fs.Write(buffer, 0, length);
+                                    //计算进度
+                                    fileLength += length;
+                                    progress = (float)fileLength / (float)totalLength;
+                                    //UnityEngine.Debug.Log(progress);
+                                    //类似尾递归
+                                    length = stream.Read(buffer, 0, buffer.Length);
                                 }
-
-                                //将内容再写入本地文件中
-                                fs.Write(buffer, 0, length);
-                                //计算进度
-                                fileLength += length;
-                                progress = (float)fileLength / (float)totalLength;
-                                //UnityEngine.Debug.Log(progress);
-                                //类似尾递归
-                                length = stream.Read(buffer, 0, buffer.Length);
-
                             }
+                            else
+                            {
+                                Debuger.Log("stream is null");
+                            }
+                            stream.Close();
+                            stream.Dispose();
                         }
-                        stream.Close();
-                        stream.Dispose();
+                        else
+                        {
+                            Debuger.Log("request is null");
+                        }
+                        request.Abort();
                     }
-                }
-                else
-                {
-                    progress = 1;
-                }
-                stopWatch.Stop();
-                Debuger.Log("耗时: " + stopWatch.ElapsedMilliseconds);
-                fs.Close();
-                fs.Dispose();
-
-                //如果下载完毕，执行回调
-                if (progress == 1)
-                {
-                    isDone = true;
-
-                    if (m_LoadSuccessCallback != null)
+                    else
                     {
-                        m_LoadSuccessCallback.Invoke();
+                        progress = 1;
                     }
+                    stopWatch.Stop();
+                    Debuger.Log("耗时: " + stopWatch.ElapsedMilliseconds);
+                    fs.Close();
+                    fs.Dispose();
 
-                    thread.Abort();
-                    Debuger.Log(m_FileName + " 下载完成");
+                    //如果下载完毕，执行回调
+                    if (progress == 1)
+                    {
+                        isDone = true;
+
+                        if (m_LoadSuccessCallback != null)
+                        {
+                            m_LoadSuccessCallback.Invoke();
+                        }
+
+                        thread.Abort();
+                        Debuger.Log(m_FileName + " 下载完成");
+                    }
                 }
+                catch (WebException ex)
+                {
+                    if (ex.Status == WebExceptionStatus.Timeout)
+                    {
+                        Debuger.Log("连接超时啦~：" + ex.ToString());
+                        throw ex;
+                    }
+                    else
+                    {
+                        if (m_LoadFailureCallback != null)
+                        {
+                            m_LoadFailureCallback.Invoke();
+                        }
+                        Debuger.Log("挂啦~：" + ex.ToString());
+                        DownloadManager.Instance.RemoveDownload(this);
+                        throw ex;
+                    }
+                }
+                //finally
+                //{
+                //    thread.Abort();
+                //    if (request != null)
+                //    {
+                        
+                //    }
+                //}
             });
 
             //开启子线程
