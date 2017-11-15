@@ -8,6 +8,11 @@ public class Item : MonoBehaviour
 {
     public Text txt_Name;
     public Text txt_Size;
+
+    public Button btn_Pause;
+    public Button btn_Stop;
+    public Button btn_Remove;
+
     public Slider Slider;
 
     private long m_TotalSize;
@@ -25,18 +30,33 @@ public class Item : MonoBehaviour
         loadSuccessCallback += OK;
         loadFailureCallback += GG;
 
-        DownloadManager.Instance.AddDownload(fileName, url, savePath, userData, loadSuccessCallback, loadFailureCallback, loadUpdateCallback);
+        DownloadManager.Instance.AddDownLoadTask(fileName, url, savePath, loadSuccessCallback, loadFailureCallback, loadUpdateCallback);
+    }
+
+    public void Pause()
+    {
+
+    }
+
+    public void Stop()
+    {
+
+    }
+
+    public void Remove()
+    {
+
     }
 
 
     public void OK()
     {
-        print("搞定了啊");
+        print(txt_Name.text+"搞定了啊");
     }
 
     public void GG()
     {
-        print("咋回事啊？");
+        print(txt_Name.text + "咋回事啊？");
     }
 
     public void ShowSlider(float processValue, long fileLoadSize = 0,long fileTotalSize = 0)
@@ -47,6 +67,6 @@ public class Item : MonoBehaviour
     public void UpdateItem(float value,long loadSize, long totalSize)
     {
         Slider.value = value;
-        txt_Size.text = (loadSize / 1024+ "/"+ totalSize / 1024);
+        txt_Size.text = (loadSize / 1024+ "K/"+ totalSize / 1024+"K");
     }
 }

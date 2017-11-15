@@ -16,6 +16,7 @@ public class Download_Example : MonoBehaviour {
     {
         public string fileName;
         public string url;
+        public string savePath;
     }
 
     public GameObject itemObj;
@@ -33,32 +34,26 @@ public class Download_Example : MonoBehaviour {
         ModuleManager.Instance.Init("LarkFramework.Module.Example");
 
         TickManager.Instance.Init();
-        DownloadManager.Instance.Init(2,1024*1024,1*1000);
+        DownloadManager.Instance.Init();
     }
 
-    public void Down()
+    public void DownAll()
     {
         foreach (var down in downList)
         {
-            var item=GameObject.Instantiate(itemObj, itemRoot).GetComponent<Item>();
+            var item= Instantiate(itemObj, itemRoot).GetComponent<Item>();
             item.name = down.fileName;
-            item.Init(0,down.fileName, down.url, Application.streamingAssetsPath);
+            item.Init(0,down.fileName, down.url, down.savePath);
         }
     }
 
-    public void ReDown()
+    public void PauseAll()
     {
-        DownloadManager.Instance.ReStartDownList();
+        DownloadManager.Instance.ReStartAllDowanLoadTask();
     }
 
-    public void Clean()
+    public void RemoveAll()
     {
-        foreach (var down in downList)
-        {
-            if (Directory.Exists(Application.streamingAssetsPath + "/" + down.fileName))
-            {
-                Directory.Delete(Application.streamingAssetsPath + "/" + down.fileName);
-            }
-        }
+
     }
 }
