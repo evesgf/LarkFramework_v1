@@ -12,7 +12,7 @@ namespace LarkFramework.GameEntry
 {
     public partial class GameEntry
     {
-        public void InitBuiltinComponents()
+        public static void InitBuiltinComponents()
         {
             //Init Module
             ModuleManager.Instance.Init("Project");
