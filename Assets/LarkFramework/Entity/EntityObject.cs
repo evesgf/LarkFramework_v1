@@ -37,6 +37,11 @@ namespace LarkFramework.Entity
             return Vector3.zero;
         }
 
+        public virtual Quaternion Quate()
+        {
+            return Quaternion.identity;
+        }
+
         public virtual Transform Root()
         {
             return null;
